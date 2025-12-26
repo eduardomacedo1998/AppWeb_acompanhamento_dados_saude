@@ -36,8 +36,10 @@ class ControllerDados extends Controller
         $id = Auth::id();
 
         $dadosUsuario = $this->dadosService->getAllByUserId($id);
+
         $resultadoIMC = $this->dadosService->calcularIMC($dadosUsuario->peso, $dadosUsuario->altura);
         [$IMC, $nivelIMC] = $resultadoIMC;
+        
 
         if (!$IMC || !$dadosUsuario) {
             return redirect()->route('users.index')->withErrors(['error' => 'Dados do usuário não encontrados.']);
@@ -45,6 +47,9 @@ class ControllerDados extends Controller
 
         return view('home.index', compact('dadosUsuario', 'IMC', 'nivelIMC'));
     }
+
+
+    
 
 
 }

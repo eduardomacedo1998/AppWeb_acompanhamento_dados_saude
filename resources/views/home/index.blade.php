@@ -121,6 +121,7 @@
                     </div>
                     <div class="progress-bar">
                         <div class="progress-fill" style="width: {{ $progressPercentage }}%"></div>
+                        <div class="progress-fill">{{ number_format($progressPercentage, 1) }}%</div>
                     </div>
                 </div>
             @else
