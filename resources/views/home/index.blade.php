@@ -1,33 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <nav class="navbar">
-        <div class="navbar-content">
-            <h1>Fitness Tracker</h1>
-            <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                @csrf
-                <button type="submit" class="navbar a logout">Logout</button>
-            </form>
-        </div>
-    </nav>
+@extends('layouts.main')
 
+    @section('title', 'Dashboard')
+
+    @section('content')
+    @php
+        $dados = $dadosUsuario ?? Auth::user();
+        $peso = $dados->peso ?? null;
+        $altura = $dados->altura ?? null;
+        $objetivo = $dados->objetivo_peso ?? null;
+        $idade = $dados->idade ?? null;
+        $goalDate = $dados->data_objetivo ?? null;
+        $sexo = $dados->sexo ?? null;
+        $weightToLose = ($peso && $objetivo) ? number_format($peso - $objetivo, 1) : null;
+    @endphp
     <div class="container">
-        @php
-            $dados = $dadosUsuario ?? Auth::user();
-            $peso = $dados->peso ?? null;
-            $altura = $dados->altura ?? null;
-            $objetivo = $dados->objetivo_peso ?? null;
-            $idade = $dados->idade ?? null;
-            $goalDate = $dados->data_objetivo ?? null;
-            $sexo = $dados->sexo ?? null;
-            $weightToLose = ($peso && $objetivo) ? number_format($peso - $objetivo, 1) : null;
-        @endphp
         <div class="header">
             <h1>Bem-vindo, <span class="user-name">{{ Auth::user()->name }}!</span></h1>
             <p>Acompanhe sua jornada fitness e alcance seus objetivos</p>
@@ -120,7 +106,7 @@
                         <span>{{ number_format($progressPercentage, 1) }}%</span>
                     </div>
                     <div class="progress-bar">
-                        <div class="progress-fill" style="width: {{ $progressPercentage }}%"></div>
+                    
                         <div class="progress-fill">{{ number_format($progressPercentage, 1) }}%</div>
                     </div>
                 </div>
@@ -130,13 +116,13 @@
 
             <div class="button-group">
                 <button type="button" class="btn btn-primary" id="editWeightBtn">Editar Peso</button>
-                <a href="#" class="btn btn-secondary">Registrar Entrada de Peso</a>
+                <a href="#" id="weighing" class="btn btn-secondary">Registrar Entrada de Peso</a>
             </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="weightModal">
-        <div class="modal">
+        <div class="modal-card-custom">
             <button type="button" class="modal-close" id="closeWeightModal">×</button>
             <h3>Atualizar Peso</h3>
             <form action="{{ route('dados.alterarPeso', ['id' => Auth::id()]) }}" method="post">
@@ -149,12 +135,19 @@
             </form>
         </div>
     </div>
+
+    @push('scripts')
     <script>
+        //  console.log('Script loaded');
         const modal = document.getElementById('weightModal');
-        const editBtn = document.getElementById('editWeightBtn');
+        const editBtn = document.getElementById('weighing');
         const closeBtn = document.getElementById('closeWeightModal');
 
+        // console.log('Modal:', modal);
+        // console.log('Edit button:', editBtn);
+
         function toggleModal(show) {
+            console.log('Toggle modal:', show);
             if (show) {
                 modal.classList.add('is-visible');
             } else {
@@ -162,13 +155,26 @@
             }
         }
 
-        editBtn.addEventListener('click', () => toggleModal(true));
-        closeBtn.addEventListener('click', () => toggleModal(false));
-        modal.addEventListener('click', (event) => {
-            if (event.target === modal) {
-                toggleModal(false);
-            }
-        });
+        if (editBtn) {
+            editBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                console.log('Edit button clicked');
+                toggleModal(true);
+            });
+        }
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => toggleModal(false));
+        }
+
+        if (modal) {
+            modal.addEventListener('click', (event) => {
+                // Atualizado para verificar a nova classe
+                if (!event.target.closest('.modal-card-custom')) {
+                    toggleModal(false);
+                }
+            });
+        }
     </script>
-</body>
-</html>
+    @endpush
+    @endsection

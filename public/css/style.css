@@ -1,4 +1,4 @@
-     * {
+* {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -276,13 +276,14 @@
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.45);
+            background: rgba(0, 0, 0, 0.7);
             display: flex;
             justify-content: center;
             align-items: center;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease;
+            z-index: 9999;
         }
 
         .modal-overlay.is-visible {
@@ -290,7 +291,8 @@
             pointer-events: all;
         }
 
-        .modal {
+        /* Renomeado de .modal para .modal-card-custom para evitar conflito com Bootstrap */
+        .modal-card-custom {
             background: white;
             border-radius: 12px;
             padding: 32px;
@@ -298,9 +300,10 @@
             width: 90%;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             position: relative;
+            z-index: 10000;
         }
 
-        .modal h3 {
+        .modal-card-custom h3 {
             margin-bottom: 20px;
             font-size: 22px;
             color: #333;
