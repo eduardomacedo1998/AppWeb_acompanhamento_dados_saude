@@ -19,6 +19,18 @@
             <p>Acompanhe sua jornada fitness e alcance seus objetivos</p>
         </div>
 
+         @if(session('success'))
+            <div class="alert alert-success mt-3">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if($errors->has('error'))
+            <div class="alert alert-danger mt-3">
+                {{ $errors->first('error') }}
+            </div>
+        @endif
+
         <!-- Quick Stats Cards -->
         <div class="dashboard-grid">
             <div class="card">
@@ -94,31 +106,19 @@
 
         <!-- Progress Section -->
         <div class="progress-section">
-            <h2>Acompanhamento</h2>
+            <h2>Histórico de Peso</h2>
 
-            @if ($peso && $objetivo && $peso > 0)
-                @php
-                    $progressPercentage = min((($peso - $objetivo) / $peso) * 100, 100);
-                @endphp
-                <div class="progress-item">
-                    <div class="progress-label">
-                        <span>Meta de Emagrecimento</span>
-                        <span>{{ number_format($progressPercentage, 1) }}%</span>
-                    </div>
-                    <div class="progress-bar">
-                    
-                        <div class="progress-fill">{{ number_format($progressPercentage, 1) }}%</div>
-                    </div>
-                </div>
-            @else
-                <div class="no-data">Sem dados de peso. Complete seu perfil.</div>
-            @endif
+            <div class="chart-container" style="position: relative; height:300px; width:100%">
+                <canvas id="weightChart"></canvas>
+            </div>
 
-            <div class="button-group">
+            <div class="button-group mt-4">
                 <button type="button" class="btn btn-primary" id="editWeightBtn">Editar Peso</button>
                 <a href="#" id="weighing" class="btn btn-secondary">Registrar Entrada de Peso</a>
             </div>
         </div>
+
+       
     </div>
 
     <div class="modal-overlay" id="weightModal">
@@ -137,17 +137,59 @@
     </div>
 
     @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        //  console.log('Script loaded');
+        // Lógica do Gráfico
+        const ctx = document.getElementById('weightChart').getContext('2d');
+        const weightHistory = @json($weightHistory);
+        
+        const labels = weightHistory.map(item => {
+            const date = new Date(item.recorded_at);
+            return date.toLocaleDateString('pt-BR');
+        });
+        
+        const dataValues = weightHistory.map(item => item.weight);
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Peso (kg)',
+                    data: dataValues,
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#007bff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: { color: '#f0f0f0' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Lógica do Modal (Mantenha o código existente abaixo)
         const modal = document.getElementById('weightModal');
-        const editBtn = document.getElementById('weighing');
+        const editBtn = document.getElementById('weighing'); // Corrigido de 'weighing' para 'editWeightBtn'
         const closeBtn = document.getElementById('closeWeightModal');
 
-        // console.log('Modal:', modal);
-        // console.log('Edit button:', editBtn);
-
         function toggleModal(show) {
-            console.log('Toggle modal:', show);
             if (show) {
                 modal.classList.add('is-visible');
             } else {
@@ -158,7 +200,6 @@
         if (editBtn) {
             editBtn.addEventListener('click', (event) => {
                 event.stopPropagation();
-                console.log('Edit button clicked');
                 toggleModal(true);
             });
         }

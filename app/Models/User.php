@@ -35,6 +35,11 @@ class User extends Authenticatable
         return $this->hasOne(dados_usuario::class, 'id_usuario');
     }
 
+    public function weightHistory()
+    {
+        return $this->hasMany(UserWeightHistory::class, 'user_id');
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
