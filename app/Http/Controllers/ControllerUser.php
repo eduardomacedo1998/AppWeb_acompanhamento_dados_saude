@@ -7,6 +7,7 @@ use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\DadosService;
+use App\Http\Requests\StoreDadosUser;
 
 class ControllerUser extends Controller
 {
@@ -23,20 +24,8 @@ class ControllerUser extends Controller
         return view('users.index');
     }
 
-    public function store(Request $request)
+    public function store(StoreDadosUser $request)
     {
-       $request->validate([
-           'name' => 'required|string|max:255',
-           'email' => 'required|string|email|max:255|unique:users',
-           'password' => 'required|string|min:8|confirmed',
-           'idade' => 'required|integer',
-           'peso' => 'required|numeric',
-           'altura' => 'required|numeric',
-           'sexo' => 'required|string|max:10',
-           'objetivo_peso' => 'required|numeric',
-           'data_objetivo' => 'required|date',
-       ]);
-
          try {
              $user = $this->userService->registerUser($request->all());
              $dadosUsuario = $this->dadosService->getAllByUserId($user->id);
